@@ -7,19 +7,33 @@
   <title>Document</title>
 </head>
 <body>
-  <div>
-    <video src="http://clips.vorwaerts-gmbh.de/big_buck_bunny.mp4" controls></video>
-  </div>
-
+  <video src="" width="500px" height="300px" controls></video>
   <script>
-    const div = document.querySelector('div')
-    
-    div.addEventListener('focus', e => {
-      console.log();
-    })
 
-    // hhckidpbkbmoeejbddojbdgidalionif
+    window.onload = function() {
+      var video = document.querySelector('video')
 
+    function blob_load(src) {
+      var req = new XMLHttpRequest();
+      req.open('GET', src, true)
+      req.responseType = 'blob'
+      req.onload = function() {
+        if(this.status === 200) {
+          var videoBlob = this.response;
+          var blobSrc = URL.createObjectURL(videoBlob)
+          video.src = blobSrc
+          console.log(blobSrc, "视频缓存完毕");
+        }
+      }
+
+      req.onerror = function() {
+        console.log("视频加载失败");
+      }
+
+      req.send()
+    }
+      blob_load('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4')
+    }
   </script>
 </body>
 </html>

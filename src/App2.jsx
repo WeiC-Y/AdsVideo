@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import preloadIt from 'preload-it'
-import path from './2.mp4'
+import path from './assets/2.mp4'
 import './app.css'
 
 

@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import AdsVideo from './AdsVideo';
-import path from './2.mp4'
+import path from './assets/2.mp4'
 
 export default class App extends Component {
 
