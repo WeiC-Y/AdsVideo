@@ -1,0 +1,39 @@
+.video-react > .video-react-bezel {
+  display: none !important;
+}
+
+.container {
+  margin: 0 auto;
+  position: relative;
+  display: inline-block;
+}
+
+.video {
+  z-index: 100;
+}
+
+.sound {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  width: 50px;
+  font-size: 24px;
+  user-select:none;
+  z-index: 102;
+}
+
+.muted {
+  color: red;
+}
+
+.timeline {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  user-select:none;
+  z-index: 102;
+}
+
+.cover {
+  z-index: 101;
+}
