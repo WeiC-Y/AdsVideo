@@ -1,14 +1,16 @@
 import React, { Component } from 'react'
+import { Player, ControlBar } from 'video-react'
 import preloadIt from 'preload-it'
 import path from './assets/2.mp4'
-import './app.css'
+import './App.css'
+import "../node_modules/video-react/dist/video-react.css"; // import css
 
 
 const preload = new preloadIt()
 
 export default class App extends Component {
   state = {
-    progress: 0
+    progress: 0,
   }
 
   componentDidMount() {
@@ -22,16 +24,17 @@ export default class App extends Component {
   }
 
   onComplete = items => {
-    console.log(items);
-    this.player.src = preload.getItemByUrl('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4').blobUrl;
-    this.player.play()
+    this.source.src = preload.getItemByUrl('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4').blobUrl
+    this.setState({
+      blobUrl: preload.getItemByUrl('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4').blobUrl
+    })
+    this.player.load()
   }
 
   onProgress = event => {
     this.setState({
       progress: event.progress
     })
-    console.log(event.progress, this.state.progress);
   }
 
   onfetched = item => {
@@ -40,17 +43,19 @@ export default class App extends Component {
 
 
   render() {
-    console.log(path);
-    const { progress } = this.state
+    const { progress, blobUrl } = this.state
     return (
       <div className='box'>
         <div ref={a => this.progress = a} className="txt">{progress}%</div>
-        <div ref={a => this.progressBar = a} style={{width: `${progress*5}px`}} className="line"></div>
+        <div ref={a => this.progressBar = a} style={{ width: `${progress * 5}px` }} className="line"></div>
         <div ref={a => this.loadedAssets = a} className="assets">
           <h3>Loaded Assets：</h3>
         </div>
         <div className='container'>
-          <video ref={a => this.player = a} controls></video>
+          <Player ref={a => this.player = a}>
+            <source ref={a => this.source = a}/>
+            <ControlBar />
+          </Player>
         </div>
       </div>
     )

@@ -4,6 +4,10 @@ import path from './assets/2.mp4'
 
 export default class App extends Component {
 
+  preload = () => {
+    this.video.sendXHR()
+  }
+
   paused = () => {
     this.video.togglePaused()
   }
@@ -37,6 +41,7 @@ export default class App extends Component {
       <div>
         <AdsVideo ref={video => this.video = video} {...videoProps} />
         <div>
+          <button onClick={this.preload}>开始下载视频</button>
           <button onClick={this.paused}>开始/暂停</button>
           <button onClick={this.muted}>切换静音</button>
           <button onClick={this.jumpToEnd}>跳到结尾</button>
