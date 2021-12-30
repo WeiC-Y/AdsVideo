@@ -13,8 +13,7 @@ export default class App extends Component {
 
   componentDidMount() {
     preload.fetch([
-      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
-      path
+      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4'
     ])
 
     preload.oncomplete = this.onComplete
@@ -41,6 +40,7 @@ export default class App extends Component {
 
 
   render() {
+    console.log(path);
     const { progress } = this.state
     return (
       <div className='box'>

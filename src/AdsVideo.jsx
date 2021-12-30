@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, { Component, Fragment } from 'react';
 import { number, string, bool, oneOf, func } from 'prop-types'
 import {
   Player,
@@ -6,6 +6,7 @@ import {
   BigPlayButton
 } from 'video-react';
 import { formatSeconds } from './utils/dateFormat'
+import { load, toPercent } from './utils/xhr'
 import './AdsVideo.css'
 import "../node_modules/video-react/dist/video-react.css"; // import css
 
@@ -13,14 +14,63 @@ import "../node_modules/video-react/dist/video-react.css"; // import css
 export default class AdsVideo extends Component {
 
   state = {
+    flag: false,
+    blobUrl: '',
+    percent: 0,
+    errorMsg: '获取资源中',
     player: {},
-    canPlayThrough: false
+    canPlayThrough: false,
+    xhr: load(this.props.src)
+  }
+
+  success = (e) => {
+    const { xhr } = this.state
+    if (xhr.status === 200) {
+      this.setState({
+        flag: true,
+        blobUrl: URL.createObjectURL(xhr.response)
+      })
+      this.player.src = URL.createObjectURL(xhr.response)
+    }
+  }
+
+  onprogress = e => {
+    if (e.lengthComputable) {
+      // 已经传输的字节数 / 总字节数
+      const percent = toPercent(e.loaded / e.total)
+      this.setState({
+        percent
+      })
+    }
+  }
+
+  onerror = () => {
+    this.setState({
+      flag: false,
+      errorMsg: '请求资源失败!'
+    })
+  }
+
+  ontimeout = () => {
+    this.setState({
+      flag: false,
+      errorMsg: '请求资源超时!'
+    })
   }
 
   componentDidMount() {
+    const { xhr } = this.state
+    xhr.timeout = 10000
+    xhr.onload = this.success
+    xhr.onprogress = this.onprogress
+    xhr.onerror = this.onerror
+    xhr.ontimeout = this.ontimeout
+
+    xhr.send()
+
+    this.item.oncontextmenu = e => e.preventDefault()
     // Subscribe to the player state changes.
     this.player.subscribeToStateChange(this.setChange.bind(this))
-    this.item.oncontextmenu = e => e.preventDefault()
   }
 
   componentDidUpdate(preProps, preState) {
@@ -38,6 +88,7 @@ export default class AdsVideo extends Component {
     this.setState({
       player
     })
+    console.log("player =>", player);
   }
 
   togglePaused = () => {
@@ -54,32 +105,6 @@ export default class AdsVideo extends Component {
     this.player.seek(88)
   }
 
-  canPlayThrough = e => {
-    if (this.state.canPlayThrough === false) {
-      console.log('缓存完毕! =>');
-      this.setState({
-        canPlayThrough: true
-      })
-      console.log("duration =>", e.target.duration);
-      console.log("seekable =>", e.target.seekable.start(0), e.target.seekable.end(0));
-      if(e.target.buffered.length > 0) {
-        console.log("buffered =>", e.target.buffered.start(0), e.target.buffered.end(0));
-      }
-    }
-    return
-  }
-
-  progress = e => {
-    const { buffered, duration } = e.target
-    if(buffered.length > 0) {
-      const end = buffered.end(0)
-      console.log(`buffered: ${end}`);
-      if(end.toString() === duration.toString()) {
-        console.log('视频缓存完毕');
-      }
-    }
-  }
-
   // 阻止冒泡
   static stopPop = e => {
     e.stopPropagation()
@@ -92,20 +117,24 @@ export default class AdsVideo extends Component {
   }
 
   render() {
-    const { width, height, fluid, autoplay, muted, src, poster, preload } = this.props
-    const { muted: s_muted, duration, currentTime } = this.state.player
+    const { width, height, fluid, autoplay, muted, poster, preload } = this.props
+    const { player: { muted: s_muted, duration, currentTime }, blobUrl, percent } = this.state
     return (
-      <div className='container' onFocus={AdsVideo.blurFn} onProgress={this.progress} onCanPlayThrough={this.canPlayThrough} style={fluid ? { width: '500px' } : {}}>
-        <div className='timeline'>{`${formatSeconds(currentTime)} / ${formatSeconds(duration)}`}</div>
-        <div className='sound' onClick={this.setMuted}>{s_muted ? <span className='muted'>🔈X</span> : <span>🔈</span>}</div>
-        <div className='video' ref={item => this.item = item}>
-          <Player autoPlay={autoplay} width={width} height={height} muted={muted} ref={(player) => this.player = player} poster={poster} preload={preload} fluid={fluid} >
-            <source src={src} />
-            <ControlBar disabled />
-            <BigPlayButton disabled />
-          </Player>
+      <Fragment>
+        <h2>获取资源中: {percent}</h2>
+        <div className='container' onFocus={AdsVideo.blurFn} style={fluid ? { width: '500px' } : {}}>
+          <div className='timeline'>{`${formatSeconds(currentTime)} / ${formatSeconds(duration)}`}</div>
+          <div className='sound' onClick={this.setMuted}>{s_muted ? <span className='muted'>🔈X</span> : <span>🔈</span>}</div>
+          <div className='video' ref={item => this.item = item}>
+            <Player autoPlay={autoplay} width={width} height={height} muted={muted} ref={(player) => this.player = player} poster={poster} preload={preload} fluid={fluid} >
+              <source src={blobUrl}></source>
+              <ControlBar disabled />
+              <BigPlayButton disabled />
+            </Player>
+          </div>
         </div>
-      </div>
+      </Fragment>
+
     )
   }
 }
@@ -121,7 +150,6 @@ AdsVideo.propTypes = {
   poster: string,
   preload: oneOf(['none', 'auto', 'metadata']),
   onEnded: func,
-  href: string
 }
 
 AdsVideo.defaultProps = {
@@ -133,6 +161,5 @@ AdsVideo.defaultProps = {
   src: '',
   poster: '',
   preload: 'auto',
-  onEnded: () => { },
-  href: '/'
+  onEnded: () => { }
 }

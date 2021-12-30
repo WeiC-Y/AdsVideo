@@ -27,9 +27,15 @@ export default class App extends Component {
   }
 
   render() {
+    const videoProps = {
+      src: path,
+      autoPlay: true,
+      fluid: true,
+      onEnded: this.onEnded
+    }
     return (
       <div>
-        <AdsVideo ref={video => this.video = video} src={path} autoPlay={true} fluid={true} onEnded={this.onEnded} />
+        <AdsVideo ref={video => this.video = video} {...videoProps} />
         <div>
           <button onClick={this.paused}>开始/暂停</button>
           <button onClick={this.muted}>切换静音</button>

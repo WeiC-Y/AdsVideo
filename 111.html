@@ -7,31 +7,53 @@
   <title>Document</title>
 </head>
 <body>
+  <div id="progress"></div>
   <video src="" width="500px" height="300px" controls></video>
   <script>
-
     window.onload = function() {
       var video = document.querySelector('video')
+      var progress = document.querySelector('#progress')
+
+      function toPercent(num) {
+        var str = Number(num * 100).toFixed(0)
+        return str+'%'
+      }
 
     function blob_load(src) {
       var req = new XMLHttpRequest();
+    
+      req.onprogress = downLoadProgress
+      function downLoadProgress(e) {
+        if(e.lengthComputable) {
+          // 已经传输的字节数 / 总字节数
+          progress.innerHTML = toPercent(e.loaded / e.total)
+        }
+      }
+
+      
+      req.timeout = 10000
       req.open('GET', src, true)
-      req.responseType = 'blob'
+      req.responseType = 'blob' // 设置响应数据是一个包含二进制数据的 Blob 对象
       req.onload = function() {
         if(this.status === 200) {
           var videoBlob = this.response;
-          var blobSrc = URL.createObjectURL(videoBlob)
+          var blobSrc = URL.createObjectURL(videoBlob) 
           video.src = blobSrc
           console.log(blobSrc, "视频缓存完毕");
         }
       }
 
       req.onerror = function() {
-        console.log("视频加载失败");
+        console.log("视频加载失败!");
+      }
+
+      req.ontimeout = function() {
+        progress.innerHTML = "响应超时!"
       }
 
       req.send()
     }
+    // 'http://localhost:5005/static/media/2.2b80c78fddd04d2d62c7.mp4'
       blob_load('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4')
     }
   </script>
