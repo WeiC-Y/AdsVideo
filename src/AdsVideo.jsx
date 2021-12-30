@@ -14,11 +14,10 @@ import "../node_modules/video-react/dist/video-react.css"; // import css
 export default class AdsVideo extends Component {
 
   state = {
-    flag: false,
+    flag: true,
     percent: 0,
     errorMsg: '获取资源中',
     player: {},
-    canPlayThrough: false,
     xhr: load(this.props.src)
   }
 
@@ -27,7 +26,7 @@ export default class AdsVideo extends Component {
     const { xhr } = this.state
     if (xhr.status === 200) {
       this.setState({
-        flag: true
+        flag: false
       })
       this.source.src = URL.createObjectURL(xhr.response)
       this.player.load()
@@ -62,12 +61,10 @@ export default class AdsVideo extends Component {
   }
 
   componentDidMount() {
-    this.createXHR()
     // 禁止右键菜单
     this.item.oncontextmenu = e => e.preventDefault()
     // Subscribe to the player state changes.
     this.player.subscribeToStateChange(this.setChange.bind(this))
-    console.log(this.state.xhr);
   }
 
   componentDidUpdate(preProps, preState) {
@@ -79,20 +76,22 @@ export default class AdsVideo extends Component {
     return true
   }
 
-  // 设置 xhr 对象
-  createXHR = () => {
-    const { xhr } = this.state
-    xhr.timeout = 10000
-    xhr.onload = AdsVideo.success
-    xhr.onprogress = AdsVideo.onprogress
-    xhr.onerror = AdsVideo.onerror
-    xhr.ontimeout = AdsVideo.ontimeout
-  }
-
   // 开始发送网络请求（缓存视频）
   sendXHR = () => {
-    const { xhr } = this.state
-    console.log(xhr);
+    const { xhr, flag } = this.state
+    if (flag) {
+      xhr.timeout = 10000
+      xhr.onload = this.success
+      xhr.onprogress = this.onprogress
+      xhr.onerror = this.onerror
+      xhr.ontimeout = this.ontimeout
+      xhr.send()
+    }
+    else {
+      this.setState({
+        errorMsg: 'xhr must be opend!'
+      })
+    }
   }
 
   // 观察视频的状态
@@ -132,17 +131,17 @@ export default class AdsVideo extends Component {
 
   render() {
     const { width, height, fluid, autoplay, muted, poster, preload } = this.props
-    const { player: { muted: s_muted, duration, currentTime }, percent } = this.state
+    const { player: { muted: s_muted, duration, currentTime }, percent, errorMsg } = this.state
     return (
       <Fragment>
-        <h2>获取资源中: {percent}</h2>
+        <h2>{errorMsg === '获取资源中' ? `${errorMsg}: ${percent}` : errorMsg}</h2>
         <div className='container' onFocus={AdsVideo.blurFn} style={fluid ? { width: '500px' } : {}}>
           <div className='timeline'>{`${formatSeconds(currentTime)} / ${formatSeconds(duration)}`}</div>
           <div className='sound' onClick={this.setMuted}>{s_muted ? <span className='muted'>🔈X</span> : <span>🔈</span>}</div>
           <div className='video' ref={item => this.item = item}>
             <Player autoPlay={autoplay} width={width} height={height} muted={muted} ref={(player) => this.player = player} poster={poster} preload={preload} fluid={fluid} >
               <source ref={a => this.source = a}></source>
-              <ControlBar />
+              <ControlBar disabled/>
               <BigPlayButton disabled />
             </Player>
           </div>

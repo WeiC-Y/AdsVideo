@@ -32,7 +32,7 @@ export default class App extends Component {
 
   render() {
     const videoProps = {
-      src: path,
+      src: 'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4',
       autoPlay: true,
       fluid: true,
       onEnded: this.onEnded
