@@ -18,7 +18,8 @@ export default class AdsVideo extends Component {
     percent: 0,
     errorMsg: '获取资源中',
     player: {},
-    xhr: load(this.props.src)
+    xhr: load(this.props.src),
+    blobUrl: ''
   }
 
   // 网络请求成功后的回调函数
@@ -26,7 +27,8 @@ export default class AdsVideo extends Component {
     const { xhr } = this.state
     if (xhr.status === 200) {
       this.setState({
-        flag: false
+        flag: false,
+        blobUrl: URL.createObjectURL(xhr.response)
       })
       this.source.src = URL.createObjectURL(xhr.response)
       this.player.load()
@@ -65,6 +67,9 @@ export default class AdsVideo extends Component {
     this.item.oncontextmenu = e => e.preventDefault()
     // Subscribe to the player state changes.
     this.player.subscribeToStateChange(this.setChange.bind(this))
+    this.player.disablePictureInPicture = true
+    const { video: { video: videoElm } } = this.player
+    videoElm.disablePictureInPicture = true
   }
 
   componentDidUpdate(preProps, preState) {
@@ -80,7 +85,7 @@ export default class AdsVideo extends Component {
   sendXHR = () => {
     const { xhr, flag } = this.state
     if (flag) {
-      xhr.timeout = 10000
+      xhr.timeout = 20000
       xhr.onload = this.success
       xhr.onprogress = this.onprogress
       xhr.onerror = this.onerror
@@ -104,20 +109,45 @@ export default class AdsVideo extends Component {
 
   // 切换视频暂停
   togglePaused = () => {
-    const { player: { paused } } = this.player.getState()
-    paused ? this.player.play() : this.player.pause()
+    if (this.source.src) {
+      const { player: { paused } } = this.player.getState()
+      paused ? this.player.play() : this.player.pause()
+    } else {
+      return false
+    }
+
   }
 
   // 切换视频静音
   setMuted = () => {
-    this.player.muted = !this.player.muted
+    if (this.source.src) {
+      this.player.muted = !this.player.muted
+    } else {
+      return false
+    }
   }
 
   // 跳到结尾
   jumpToEnd = () => {
-    this.player.seek(88)
+    this.player.seek(29)
   }
 
+  // 跳转链接地址
+  gotoUrl = () => {
+    const { url } = this.props
+    if (url) {
+      return window.location.href = this.props.url
+    }
+    return false
+  }
+
+  // 进度条长度
+  toPercent = () => {
+    const { duration, currentTime } = this.state.player
+    const num = Number(((currentTime / duration) * 100).toFixed(2))                     
+    return duration && currentTime ? num + '%' : '0%'
+  }
+f
   // 阻止冒泡
   static stopPop = e => {
     e.stopPropagation()
@@ -131,17 +161,24 @@ export default class AdsVideo extends Component {
 
   render() {
     const { width, height, fluid, autoplay, muted, poster, preload } = this.props
-    const { player: { muted: s_muted, duration, currentTime }, percent, errorMsg } = this.state
+    const { player: { muted: s_muted, duration, currentTime }, percent, errorMsg, blobUrl } = this.state
     return (
       <Fragment>
         <h2>{errorMsg === '获取资源中' ? `${errorMsg}: ${percent}` : errorMsg}</h2>
         <div className='container' onFocus={AdsVideo.blurFn} style={fluid ? { width: '500px' } : {}}>
-          <div className='timeline'>{`${formatSeconds(currentTime)} / ${formatSeconds(duration)}`}</div>
-          <div className='sound' onClick={this.setMuted}>{s_muted ? <span className='muted'>🔈X</span> : <span>🔈</span>}</div>
-          <div className='video' ref={item => this.item = item}>
+          <div className="progressBar">
+            <div className="progress" style={{ width: `${this.toPercent()}` }}></div>
+          </div>
+          <div className='timeline'>{duration ? `${formatSeconds(duration - currentTime)}` : `00:00`}</div>
+          {blobUrl ? <div className='sound' onClick={this.setMuted}>
+            {
+              s_muted ? <span className="iconfont">&#xe63b;</span> : <span className="iconfont">&#xe63a;</span>
+            }
+          </div> : ''}
+          <div className='video' ref={item => this.item = item} onClick={this.gotoUrl}>
             <Player autoPlay={autoplay} width={width} height={height} muted={muted} ref={(player) => this.player = player} poster={poster} preload={preload} fluid={fluid} >
               <source ref={a => this.source = a}></source>
-              <ControlBar disabled/>
+              <ControlBar disabled />
               <BigPlayButton disabled />
             </Player>
           </div>
@@ -163,6 +200,7 @@ AdsVideo.propTypes = {
   poster: string,
   preload: oneOf(['none', 'auto', 'metadata']),
   onEnded: func,
+  url: string
 }
 
 AdsVideo.defaultProps = {
@@ -174,5 +212,6 @@ AdsVideo.defaultProps = {
   src: '',
   poster: '',
   preload: 'auto',
-  onEnded: () => { }
+  onEnded: () => { },
+  string: ''
 }
