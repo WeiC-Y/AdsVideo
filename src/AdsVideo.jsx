@@ -16,6 +16,7 @@ export default class AdsVideo extends Component {
   state = {
     flag: true,
     percent: 0,
+    progress: '',
     errorMsg: '获取资源中',
     player: {},
     xhr: load(this.props.src),
@@ -30,6 +31,7 @@ export default class AdsVideo extends Component {
         flag: false,
         blobUrl: URL.createObjectURL(xhr.response)
       })
+      this.props.onLoad()
       this.source.src = URL.createObjectURL(xhr.response)
       this.player.load()
     }
@@ -67,18 +69,11 @@ export default class AdsVideo extends Component {
     this.item.oncontextmenu = e => e.preventDefault()
     // Subscribe to the player state changes.
     this.player.subscribeToStateChange(this.setChange.bind(this))
+
+    // 取消画中画
     this.player.disablePictureInPicture = true
     const { video: { video: videoElm } } = this.player
     videoElm.disablePictureInPicture = true
-  }
-
-  componentDidUpdate(preProps, preState) {
-    if (this.state.player.ended !== preState.player.ended) {
-      if (this.source.src && this.state.player.ended === true) {
-        this.props.onEnded()
-      }
-    }
-    return true
   }
 
   // 开始发送网络请求（缓存视频）
@@ -102,8 +97,16 @@ export default class AdsVideo extends Component {
   // 观察视频的状态
   setChange() {
     const { player } = this.player.getState()
+
+    if(player.ended !== this.state.player.ended) {
+      if(this.source.src && player.ended === true) {
+        this.props.onEnded()
+      }
+    }
+
     this.setState({
-      player
+      player,
+      progress: this.toPercent()
     })
   }
 
@@ -115,7 +118,6 @@ export default class AdsVideo extends Component {
     } else {
       return false
     }
-
   }
 
   // 切换视频静音
@@ -129,7 +131,7 @@ export default class AdsVideo extends Component {
 
   // 跳到结尾
   jumpToEnd = () => {
-    this.player.seek(29)
+    this.player.seek(this.state.player.duration - 1)
   }
 
   // 跳转链接地址
@@ -144,10 +146,10 @@ export default class AdsVideo extends Component {
   // 进度条长度
   toPercent = () => {
     const { duration, currentTime } = this.state.player
-    const num = Number(((currentTime / duration) * 100).toFixed(2))                     
+    const num = Number(((currentTime / duration) * 100).toFixed(2))
     return duration && currentTime ? num + '%' : '0%'
   }
-f
+
   // 阻止冒泡
   static stopPop = e => {
     e.stopPropagation()
@@ -161,19 +163,17 @@ f
 
   render() {
     const { width, height, fluid, autoplay, muted, poster, preload } = this.props
-    const { player: { muted: s_muted, duration, currentTime }, percent, errorMsg, blobUrl } = this.state
+    const { player: { muted: s_muted, duration, currentTime }, percent, errorMsg, blobUrl, progress } = this.state
     return (
       <Fragment>
         <h2>{errorMsg === '获取资源中' ? `${errorMsg}: ${percent}` : errorMsg}</h2>
-        <div className='container' onFocus={AdsVideo.blurFn} style={fluid ? { width: '500px' } : {}}>
+        <div className='container' onFocus={AdsVideo.blurFn} style={fluid ? { width: '500px' } : { width: `${width}px`, height: `${height}px` }}>
           <div className="progressBar">
-            <div className="progress" style={{ width: `${this.toPercent()}` }}></div>
+            <div className="progress" style={{ width: progress }}></div>
           </div>
           <div className='timeline'>{duration ? `${formatSeconds(duration - currentTime)}` : `00:00`}</div>
           {blobUrl ? <div className='sound' onClick={this.setMuted}>
-            {
-              s_muted ? <span className="iconfont">&#xe63b;</span> : <span className="iconfont">&#xe63a;</span>
-            }
+            <span className="iconfont" dangerouslySetInnerHTML={{ __html: s_muted ? '&#xe63b;' : '&#xe63a;' }}></span>
           </div> : ''}
           <div className='video' ref={item => this.item = item} onClick={this.gotoUrl}>
             <Player autoPlay={autoplay} width={width} height={height} muted={muted} ref={(player) => this.player = player} poster={poster} preload={preload} fluid={fluid} >

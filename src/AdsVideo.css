@@ -1,4 +1,4 @@
-.video-react > .video-react-bezel {
+.video-react>.video-react-bezel {
   display: none !important;
 }
 
@@ -24,17 +24,17 @@ body {
   position: absolute;
   left: 10px;
   font-size: 24px;
-  user-select:none;
+  user-select: none;
   z-index: 102;
   color: white;
 }
 
-.sound:hover > .iconfont {
+.sound:hover>.iconfont {
   text-shadow: 2px 2px 5px white;
   transition: text-shadow .2s;
 }
 
-.sound > .iconfont {
+.sound>.iconfont {
   font-size: 24px;
 }
 
@@ -53,7 +53,7 @@ body {
   width: 0;
   height: 3px;
   background-color: orange;
-  transition: width .5s;
+  transition: width .4s;
 }
 
 /* 时间条 */
@@ -61,13 +61,13 @@ body {
   position: absolute;
   right: 5px;
   bottom: 5px;
-  user-select:none;
+  user-select: none;
   color: white;
   z-index: 102;
+  background-color: rgba(0, 0, 0, .4);
 }
 
 /* video-react自定义的loading效果 */
 .video-react-loading-spinner {
   display: none !important;
 }
-
