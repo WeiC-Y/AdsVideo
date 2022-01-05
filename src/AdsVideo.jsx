@@ -19,22 +19,18 @@ export default class AdsVideo extends Component {
     progress: '',
     errorMsg: '获取资源中',
     player: {},
-    xhr: load(this.props.src),
     blobUrl: ''
   }
 
   // 网络请求成功后的回调函数
-  success = (e) => {
-    const { xhr } = this.state
-    if (xhr.status === 200) {
-      this.setState({
-        flag: false,
-        blobUrl: URL.createObjectURL(xhr.response)
-      })
-      this.props.onLoad()
-      this.source.src = URL.createObjectURL(xhr.response)
-      this.player.load()
-    }
+  onsuccess = (res) => {
+    this.setState({
+      flag: false,
+      blobUrl: URL.createObjectURL(res)
+    })
+    this.props.onLoad()
+    this.source.src = URL.createObjectURL(res)
+    this.player.load()
   }
 
   // 用于获取网络请求数据
@@ -78,13 +74,18 @@ export default class AdsVideo extends Component {
 
   // 开始发送网络请求（缓存视频）
   sendXHR = () => {
-    const { xhr, flag } = this.state
+    let { flag } = this.state
     if (flag) {
-      xhr.timeout = 20000
-      xhr.onload = this.success
-      xhr.onprogress = this.onprogress
-      xhr.onerror = this.onerror
-      xhr.ontimeout = this.ontimeout
+      let xhr = load({
+        url: this.props.src,
+        method: 'GET',
+        type: 'blob',
+        time: 10000,
+        success: this.onsuccess,
+        error: this.onerror,
+        timeout: this.ontimeout,
+        progress: this.onprogress
+      })
       xhr.send()
     }
     else {
@@ -98,8 +99,8 @@ export default class AdsVideo extends Component {
   setChange() {
     const { player } = this.player.getState()
 
-    if(player.ended !== this.state.player.ended) {
-      if(this.source.src && player.ended === true) {
+    if (player.ended !== this.state.player.ended) {
+      if (this.source.src && player.ended === true) {
         this.props.onEnded()
       }
     }
@@ -116,6 +117,7 @@ export default class AdsVideo extends Component {
       const { player: { paused } } = this.player.getState()
       paused ? this.player.play() : this.player.pause()
     } else {
+      console.log('视频尚未加载');
       return false
     }
   }
@@ -125,6 +127,7 @@ export default class AdsVideo extends Component {
     if (this.source.src) {
       this.player.muted = !this.player.muted
     } else {
+      console.log('视频尚未加载');
       return false
     }
   }
