@@ -56,7 +56,6 @@ export default class App extends Component {
       <div>
         <AdsVideo ref={video => this.video = video} {...this.videoProps} width={700} height={500} />
         <div>
-
           <button onClick={this.paused}>开始/暂停</button>
           <button onClick={this.muted}>切换静音</button>
           <button onClick={this.jumpToEnd}>跳到结尾</button>
