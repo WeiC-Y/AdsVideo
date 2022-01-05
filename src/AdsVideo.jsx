@@ -69,11 +69,6 @@ export default class AdsVideo extends Component {
     this.item.oncontextmenu = e => e.preventDefault()
     // Subscribe to the player state changes.
     this.player.subscribeToStateChange(this.setChange.bind(this))
-
-    // 取消画中画
-    this.player.disablePictureInPicture = true
-    const { video: { video: videoElm } } = this.player
-    videoElm.disablePictureInPicture = true
   }
 
   // 观察视频的状态
@@ -98,6 +93,13 @@ export default class AdsVideo extends Component {
         }
       }
     }
+
+    // 取消画中画
+    const { video: { video: videoElm } } = this.player
+    if (videoElm.disablePictureInPicture !== 'undefined') {
+      videoElm.disablePictureInPicture = true
+    }
+
 
     this.setState({
       player,
