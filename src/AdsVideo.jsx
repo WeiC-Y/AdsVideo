@@ -14,7 +14,7 @@ import "../node_modules/video-react/dist/video-react.css"; // import css
 export default class AdsVideo extends Component {
 
   state = {
-    flag: true,
+    flag: false,
     percent: 0,
     progress: '',
     errorMsg: '获取资源中',
@@ -25,12 +25,18 @@ export default class AdsVideo extends Component {
   // 网络请求成功后的回调函数
   onsuccess = (res) => {
     this.setState({
-      flag: false,
+      flag: true,
       blobUrl: URL.createObjectURL(res)
     })
-    this.props.onLoad()
+
+    // 转换响应数据为 blob视频格式 并传递给视频组件
     this.source.src = URL.createObjectURL(res)
+
+    // 重新加载视频
     this.player.load()
+
+    // 视频加载完毕后触发事件
+    this.props.onLoad()
   }
 
   // 用于获取网络请求数据
@@ -47,7 +53,6 @@ export default class AdsVideo extends Component {
   // 网络请求错误的回调
   onerror = () => {
     this.setState({
-      flag: false,
       errorMsg: '请求资源失败!'
     })
   }
@@ -55,7 +60,6 @@ export default class AdsVideo extends Component {
   // 网络请求超时的回调函数
   ontimeout = () => {
     this.setState({
-      flag: false,
       errorMsg: '请求资源超时!'
     })
   }
@@ -72,10 +76,39 @@ export default class AdsVideo extends Component {
     videoElm.disablePictureInPicture = true
   }
 
+  // 观察视频的状态
+  setChange() {
+    const { blobUrl } = this.state
+    const { player } = this.player.getState()
+
+    // 当视频资源存在时，blobUrl不为空
+    if (blobUrl !== '') {
+
+      // 根据视频时长进入不同分支
+      if (player.duration < 30) {
+        if (player.ended !== this.state.player.ended && player.ended === true) {
+          // 视频首次结束触发
+          console.log("视频小于30s且视频结束");
+          this.props.onEnded()
+        }
+      } else if (player.duration > 30) {
+        if (player.currentTime > 30 && this.state.player.currentTime < 30) {
+          console.log("视频大于30s且视频播放超过30s");
+          this.props.onEnded()
+        }
+      }
+    }
+
+    this.setState({
+      player,
+      progress: this.toPercent()
+    })
+  }
+
   // 开始发送网络请求（缓存视频）
   sendXHR = () => {
     let { flag } = this.state
-    if (flag) {
+    if (flag === false) {
       let xhr = load({
         url: this.props.src,
         method: 'GET',
@@ -93,22 +126,6 @@ export default class AdsVideo extends Component {
         errorMsg: 'xhr must be opend!'
       })
     }
-  }
-
-  // 观察视频的状态
-  setChange() {
-    const { player } = this.player.getState()
-
-    if (player.ended !== this.state.player.ended) {
-      if (this.source.src && player.ended === true) {
-        this.props.onEnded()
-      }
-    }
-
-    this.setState({
-      player,
-      progress: this.toPercent()
-    })
   }
 
   // 切换视频暂停
@@ -138,8 +155,9 @@ export default class AdsVideo extends Component {
   }
 
   // 跳转链接地址
-  gotoUrl = () => {
-    const { url } = this.props
+  handleClick = () => {
+    const { url, onAdClick } = this.props
+    onAdClick()
     if (url) {
       return window.location.href = this.props.url
     }
@@ -166,11 +184,11 @@ export default class AdsVideo extends Component {
 
   render() {
     const { width, height, fluid, autoplay, muted, poster, preload } = this.props
-    const { player: { muted: s_muted, duration, currentTime }, percent, errorMsg, blobUrl, progress } = this.state
+    const { player: { muted: s_muted, duration, currentTime }, percent, errorMsg, blobUrl, progress, flag } = this.state
     return (
       <Fragment>
         <h2>{errorMsg === '获取资源中' ? `${errorMsg}: ${percent}` : errorMsg}</h2>
-        <div className='container' onFocus={AdsVideo.blurFn} style={fluid ? { width: '500px' } : { width: `${width}px`, height: `${height}px` }}>
+        <div className={flag === true ? 'container' : 'contianer hidden'} onFocus={AdsVideo.blurFn} style={fluid ? { width: '500px' } : { width: `${width}px`, height: `${height}px` }}>
           <div className="progressBar">
             <div className="progress" style={{ width: progress }}></div>
           </div>
@@ -178,7 +196,7 @@ export default class AdsVideo extends Component {
           {blobUrl ? <div className='sound' onClick={this.setMuted}>
             <span className="iconfont" dangerouslySetInnerHTML={{ __html: s_muted ? '&#xe63b;' : '&#xe63a;' }}></span>
           </div> : ''}
-          <div className='video' ref={item => this.item = item} onClick={this.gotoUrl}>
+          <div className='video' ref={item => this.item = item} onClick={this.handleClick}>
             <Player autoPlay={autoplay} width={width} height={height} muted={muted} ref={(player) => this.player = player} poster={poster} preload={preload} fluid={fluid} >
               <source ref={a => this.source = a}></source>
               <ControlBar disabled />
@@ -202,8 +220,10 @@ AdsVideo.propTypes = {
   src: string,
   poster: string,
   preload: oneOf(['none', 'auto', 'metadata']),
+  url: string,
   onEnded: func,
-  url: string
+  onLoad: func,
+  onAdClick: func
 }
 
 AdsVideo.defaultProps = {
@@ -216,5 +236,6 @@ AdsVideo.defaultProps = {
   poster: '',
   preload: 'auto',
   onEnded: () => { },
-  string: ''
+  onLoad: () => { },
+  onAdClick: () => { }
 }
