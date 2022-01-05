@@ -10,6 +10,9 @@ export function load(options) {
 
   const xhr = new XMLHttpRequest()
 
+  // 初始化网络请求
+  xhr.open(method, url, true)
+
   // 处理请求方式，默认为GET
   method = method ? method.toUpperCase() : 'GET';
 
@@ -37,7 +40,5 @@ export function load(options) {
   // 获取进度
   xhr.onprogress = progress
 
-  // 初始化网络请求
-  xhr.open(method, url, true)
   return xhr
 }
