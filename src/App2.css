@@ -1,0 +1,15 @@
+.video-react-loading-spinner {
+  display: none !important;
+}
+
+.video-react-bezel {
+	display: none !important;
+}
+
+.video-react-big-play-button {
+	display: none !important;
+}
+
+.video-react-control-bar {
+  display: none !important;
+}

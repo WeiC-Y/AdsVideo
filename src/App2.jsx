@@ -1,63 +1,33 @@
-import React, { Component } from 'react'
-import { Player, ControlBar } from 'video-react'
-import preloadIt from 'preload-it'
-import path from './assets/2.mp4'
-import './App.css'
-import "../node_modules/video-react/dist/video-react.css"; // import css
+// App.jsx
+import React, { Component } from 'react';
+import { Player } from 'video-react';
+import path from './assets/1.mp4';
+import './App2.css'
+// 引入组件样式
+import "../node_modules/video-react/dist/video-react.css";
 
-
-const preload = new preloadIt()
 
 export default class App extends Component {
-  state = {
-    progress: 0,
-  }
 
   componentDidMount() {
-    preload.fetch([
-      'https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4'
-    ])
-
-    preload.oncomplete = this.onComplete
-    preload.onprogress = this.onProgress
-    preload.onfetched = this.onfetched
+    console.log(this.player)
+    // subscribe state change 订阅状态改变
+    this.player.subscribeToStateChange(this.handleStateChange.bind(this));
   }
 
-  onComplete = items => {
-    this.source.src = preload.getItemByUrl('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4').blobUrl
-    this.setState({
-      blobUrl: preload.getItemByUrl('https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerFun.mp4').blobUrl
-    })
-    this.player.load()
+  // 处理状态变化的事件
+  handleStateChange(state, prevState) {
+    console.log(state)
   }
-
-  onProgress = event => {
-    this.setState({
-      progress: event.progress
-    })
-  }
-
-  onfetched = item => {
-    this.loadedAssets.innerHTML += `<p>${item.fileName} [<strong>${item.size}</strong>]<p/>`
-  }
-
 
   render() {
-    const { progress, blobUrl } = this.state
     return (
-      <div className='box'>
-        <div ref={a => this.progress = a} className="txt">{progress}%</div>
-        <div ref={a => this.progressBar = a} style={{ width: `${progress * 5}px` }} className="line"></div>
-        <div ref={a => this.loadedAssets = a} className="assets">
-          <h3>Loaded Assets：</h3>
-        </div>
-        <div className='container'>
-          <Player ref={a => this.player = a}>
-            <source ref={a => this.source = a}/>
-            <ControlBar />
-          </Player>
-        </div>
+      <div className='container'>
+        {/* 使用 ref 获取 player 实例对象，其中包含着组件的属性与方法 */}
+        <Player ref={a => this.player = a} fluid={false} width={500} height={300}>
+          <source src={path} />
+        </Player>
       </div>
-    )
+    );
   }
 }
