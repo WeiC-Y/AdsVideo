@@ -1,5 +1,5 @@
 import React, { Component, Fragment } from 'react';
-import { number, string, bool, oneOf, func } from 'prop-types'
+import { number, string, bool, oneOf, func, shape } from 'prop-types'
 import {
   Player,
   ControlBar,
@@ -51,16 +51,10 @@ export default class AdsVideo extends Component {
   }
 
   // 网络请求错误的回调
-  onerror = () => {
+  onerror = (errorMsg) => {
+    console.log(errorMsg);
     this.setState({
-      errorMsg: '请求资源失败!'
-    })
-  }
-
-  // 网络请求超时的回调函数
-  ontimeout = () => {
-    this.setState({
-      errorMsg: '请求资源超时!'
+      errorMsg
     })
   }
 
@@ -112,13 +106,12 @@ export default class AdsVideo extends Component {
     let { flag } = this.state
     if (flag === false) {
       let xhr = load({
-        url: this.props.src,
+        url: this.props.video.url,
         method: 'GET',
         type: 'blob',
         time: 10000,
         success: this.onsuccess,
         error: this.onerror,
-        timeout: this.ontimeout,
         progress: this.onprogress
       })
       xhr.send()
@@ -158,10 +151,10 @@ export default class AdsVideo extends Component {
 
   // 跳转链接地址
   handleClick = () => {
-    const { url, onAdClick } = this.props
+    const { to, onAdClick } = this.props
     onAdClick()
-    if (url) {
-      return window.location.href = this.props.url
+    if (to) {
+      return window.location.href = to
     }
     return false
   }
@@ -185,12 +178,15 @@ export default class AdsVideo extends Component {
   }
 
   render() {
-    const { width, height, fluid, autoplay, muted, poster, preload } = this.props
+    const { video } = this.props
     const { player: { muted: s_muted, duration, currentTime }, percent, errorMsg, blobUrl, progress, flag } = this.state
     return (
       <Fragment>
-        <h2>{errorMsg === '获取资源中' ? `${errorMsg}: ${percent}` : errorMsg}</h2>
-        <div className={flag === true ? 'container' : 'contianer hidden'} onFocus={AdsVideo.blurFn} style={fluid ? { width: '500px' } : { width: `${width}px`, height: `${height}px` }}>
+        <h2>{errorMsg === '获取资源中' ? `${errorMsg}: ${percent}` : errorMsg.toString()}</h2>
+        <div
+          className={flag === true ? 'container' : 'contianer hidden'}
+          onFocus={AdsVideo.blurFn}
+          style={video.fluid ? { width: '500px' } : { width: `${video.width}px`, height: `${video.height}px` }}>
           <div className="progressBar">
             <div className="progress" style={{ width: progress }}></div>
           </div>
@@ -199,7 +195,7 @@ export default class AdsVideo extends Component {
             <span className="iconfont" dangerouslySetInnerHTML={{ __html: s_muted ? '&#xe63b;' : '&#xe63a;' }}></span>
           </div> : ''}
           <div className='video' ref={item => this.item = item} onClick={this.handleClick}>
-            <Player autoPlay={autoplay} width={width} height={height} muted={muted} ref={(player) => this.player = player} poster={poster} preload={preload} fluid={fluid} >
+            <Player ref={(player) => this.player = player} {...video} >
               <source ref={a => this.source = a}></source>
               <ControlBar disabled />
               <BigPlayButton disabled />
@@ -214,29 +210,33 @@ export default class AdsVideo extends Component {
 
 
 AdsVideo.propTypes = {
-  width: number,
-  height: number,
-  fluid: bool,
-  autoplay: bool,
-  muted: bool,
-  src: string,
-  poster: string,
-  preload: oneOf(['none', 'auto', 'metadata']),
-  url: string,
+  video: shape({
+    width: number,
+    height: number,
+    fluid: bool,
+    autoplay: bool,
+    muted: bool,
+    url: string,
+    poster: string,
+    preload: oneOf(['none', 'auto', 'metadata']),
+  }),
+  to: string,
   onEnded: func,
   onLoad: func,
   onAdClick: func
 }
 
 AdsVideo.defaultProps = {
-  width: 500,
-  height: 300,
-  fluid: false,
-  autoplay: false,
-  muted: true,
-  src: '',
-  poster: '',
-  preload: 'auto',
+  video: {
+    width: 500,
+    height: 300,
+    fluid: false,
+    autoplay: false,
+    muted: true,
+    url: '',
+    poster: '',
+    preload: 'auto',
+  },
   onEnded: () => { },
   onLoad: () => { },
   onAdClick: () => { }
