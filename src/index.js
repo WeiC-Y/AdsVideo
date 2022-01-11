@@ -1,8 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
+import AdsPage from './components/AdsPage';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import 'core-js/es'
 import 'react-app-polyfill/ie9' 
 import 'react-app-polyfill/stable'
 
-ReactDOM.render(<App />,document.getElementById('root'));
+ReactDOM.render(
+  <Router>
+    <Routes>
+      <Route path='/' element={<App />}/>
+      <Route path='/ads' element={<AdsPage/>}/>
+    </Routes>
+  </Router>
+  ,document.getElementById('root'));

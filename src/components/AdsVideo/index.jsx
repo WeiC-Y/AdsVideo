@@ -5,9 +5,8 @@ import {
   ControlBar,
   BigPlayButton
 } from 'video-react';
-import { formatSeconds } from '../../utils/dateFormat'
 import { load, toPercent } from '../../utils/xhr'
-import './AdsVideo.css'
+import './index.css'
 import "../../../node_modules/video-react/dist/video-react.css"; // import css
 
 
@@ -37,6 +36,8 @@ export default class AdsVideo extends Component {
 
     // 视频加载完毕后触发事件
     this.props.onLoad()
+
+    this.player.play()
   }
 
   // 用于获取网络请求数据
@@ -94,10 +95,18 @@ export default class AdsVideo extends Component {
       videoElm.disablePictureInPicture = true
     }
 
+    // 获取视频结束使得进度
+    if (player.ended !== true) {
+      this.props.setProgress(this.toPercent(player.currentTime, player.duration))
+    }
+
+    // 获取视频结束后的第一次进度
+    if (this.state.player.ended !== true && player.ended === true) {
+      this.props.setProgress(this.toPercent(player.currentTime, player.duration))
+    }
 
     this.setState({
       player,
-      progress: this.toPercent()
     })
   }
 
@@ -160,8 +169,7 @@ export default class AdsVideo extends Component {
   }
 
   // 进度条长度
-  toPercent = () => {
-    const { duration, currentTime } = this.state.player
+  toPercent = (currentTime, duration) => {
     const num = Number(((currentTime / duration) * 100).toFixed(2))
     return duration && currentTime ? num + '%' : '0%'
   }
@@ -179,23 +187,19 @@ export default class AdsVideo extends Component {
 
   render() {
     const { video } = this.props
-    const { player: { muted: s_muted, duration, currentTime }, percent, errorMsg, blobUrl, progress, flag } = this.state
+    const { player: { muted: s_muted, duration, currentTime }, blobUrl } = this.state
     return (
       <Fragment>
-        <h2>{errorMsg === '获取资源中' ? `${errorMsg}: ${percent}` : errorMsg.toString()}</h2>
         <div
-          className={flag === true ? 'container' : 'contianer hidden'}
+          className='container'
           onFocus={AdsVideo.blurFn}
-          style={video.fluid ? { width: '500px' } : { width: `${video.width}px`, height: `${video.height}px` }}>
-          <div className="progressBar">
-            <div className="progress" style={{ width: progress }}></div>
-          </div>
-          <div className='timeline'>{duration ? `${formatSeconds(duration - currentTime)}` : `00:00`}</div>
+          style={video.fluid ? { width: '100%' } : { width: `${video.width}px`, height: `${video.height}px` }}>
+          <div className='timeline'>{duration ? `${Math.floor(duration - currentTime)}s` : `00:00`}</div>
           {blobUrl ? <div className='sound' onClick={this.setMuted}>
-            <span className="iconfont" dangerouslySetInnerHTML={{ __html: s_muted ? '&#xe63b;' : '&#xe63a;' }}></span>
+            <span className="iconfont" dangerouslySetInnerHTML={{ __html: s_muted ? '&#xe619;' : '&#xe61a;' }}></span>
           </div> : ''}
           <div className='video' ref={item => this.item = item} onClick={this.handleClick}>
-            <Player ref={(player) => this.player = player} {...video} >
+            <Player ref={(player) => this.player = player} {...video}>
               <source ref={a => this.source = a}></source>
               <ControlBar disabled />
               <BigPlayButton disabled />
