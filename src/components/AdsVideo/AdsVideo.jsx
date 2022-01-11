@@ -5,10 +5,10 @@ import {
   ControlBar,
   BigPlayButton
 } from 'video-react';
-import { formatSeconds } from './utils/dateFormat'
-import { load, toPercent } from './utils/xhr'
+import { formatSeconds } from '../../utils/dateFormat'
+import { load, toPercent } from '../../utils/xhr'
 import './AdsVideo.css'
-import "../node_modules/video-react/dist/video-react.css"; // import css
+import "../../../node_modules/video-react/dist/video-react.css"; // import css
 
 
 export default class AdsVideo extends Component {
