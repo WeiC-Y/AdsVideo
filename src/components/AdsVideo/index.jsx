@@ -5,12 +5,15 @@ import {
   ControlBar,
   BigPlayButton
 } from 'video-react';
-import { load, toPercent } from '../../utils/xhr'
+import { load } from '../../utils/xhr'
 import './index.css'
 import "../../../node_modules/video-react/dist/video-react.css"; // import css
 
 
 export default class AdsVideo extends Component {
+
+  item
+  source
 
   state = {
     flag: false,
@@ -44,7 +47,7 @@ export default class AdsVideo extends Component {
   onprogress = e => {
     if (e.lengthComputable) {
       // 已经传输的字节数 / 总字节数
-      const percent = toPercent(e.loaded / e.total)
+      const percent = this.convert(e.loaded / e.total)
       this.setState({
         percent
       })
@@ -168,15 +171,16 @@ export default class AdsVideo extends Component {
     return false
   }
 
+  // 小数转换百分数
+  convert = (num) => {
+    const str = Number(num * 100).toFixed(0)
+    return str
+  }
+
   // 进度条长度
   toPercent = (currentTime, duration) => {
     const num = Number(((currentTime / duration) * 100).toFixed(2))
     return duration && currentTime ? num + '%' : '0%'
-  }
-
-  // 阻止冒泡
-  static stopPop = e => {
-    e.stopPropagation()
   }
 
   // 阻止获得焦点
@@ -192,11 +196,11 @@ export default class AdsVideo extends Component {
       <Fragment>
         <div
           className='container'
-          onFocus={AdsVideo.blurFn}
+          onFocus={this.blurFn}
           style={video.fluid ? { width: '100%' } : { width: `${video.width}px`, height: `${video.height}px` }}>
           <div className='timeline'>{duration ? `${Math.floor(duration - currentTime)}s` : `00:00`}</div>
           {blobUrl ? <div className='sound' onClick={this.setMuted}>
-            <span className="iconfont" dangerouslySetInnerHTML={{ __html: s_muted ? '&#xe619;' : '&#xe61a;' }}></span>
+            <span className="iconfont" dangerouslySetInnerHTML={{ __html: s_muted ? '&xe619;' : '&xe61a;' }}></span>
           </div> : ''}
           <div className='video' ref={item => this.item = item} onClick={this.handleClick}>
             <Player ref={(player) => this.player = player} {...video}>

@@ -20,6 +20,7 @@ export default function AdsPage() {
   }
 
   useEffect(() => {
+    console.log(video);
     video.current.sendXHR()
   }, [])
 
