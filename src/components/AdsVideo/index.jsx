@@ -200,7 +200,7 @@ export default class AdsVideo extends Component {
           style={video.fluid ? { width: '100%' } : { width: `${video.width}px`, height: `${video.height}px` }}>
           <div className='timeline'>{duration ? `${Math.floor(duration - currentTime)}s` : `00:00`}</div>
           {blobUrl ? <div className='sound' onClick={this.setMuted}>
-            <span className="iconfont" dangerouslySetInnerHTML={{ __html: s_muted ? '&xe619;' : '&xe61a;' }}></span>
+            <span className="iconfont" dangerouslySetInnerHTML={{ __html: s_muted ? '&#xe619;' : '&#xe61a;' }}></span>
           </div> : ''}
           <div className='video' ref={item => this.item = item} onClick={this.handleClick}>
             <Player ref={(player) => this.player = player} {...video}>
