@@ -41,6 +41,8 @@ export default class AdsVideo extends Component {
         that.props.setFlag()
         this.player.play()
       })
+    } else {
+      alert('该浏览器不支持使用hls!')
     }
     // 禁止右键菜单
     this.item.oncontextmenu = e => e.preventDefault()
@@ -139,9 +141,8 @@ export default class AdsVideo extends Component {
     const { to, onAdClick } = this.props
     onAdClick()
     if (to) {
-      return window.location.href = to
+      window.location.href = to
     }
-    return false
   }
 
   // 小数转换百分数

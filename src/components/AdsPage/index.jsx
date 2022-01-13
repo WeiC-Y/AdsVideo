@@ -5,7 +5,6 @@ import AdsVideo from '../AdsVideo';
 import Progress from '../Progress';
 
 import './index.css'
-// import path from '../../assets/4.mp4'
 
 export default function AdsPage() {
 
@@ -25,7 +24,7 @@ export default function AdsPage() {
   }
 
   useEffect(() => {
-
+    console.log("componentDidMount ? useEffect !");
   }, [])
 
 
