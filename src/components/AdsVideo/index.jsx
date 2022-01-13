@@ -5,64 +5,43 @@ import {
   ControlBar,
   BigPlayButton
 } from 'video-react';
-import { load } from '../../utils/xhr'
+import Hls from 'hls.js';
 import './index.css'
 import "../../../node_modules/video-react/dist/video-react.css"; // import css
 
 
 export default class AdsVideo extends Component {
 
-  item
-  source
-
   state = {
-    flag: false,
-    percent: 0,
     progress: '',
-    errorMsg: '获取资源中',
     player: {},
-    blobUrl: ''
-  }
-
-  // 网络请求成功后的回调函数
-  onsuccess = (res) => {
-    this.setState({
-      flag: true,
-      blobUrl: URL.createObjectURL(res)
-    })
-
-    // 转换响应数据为 blob视频格式 并传递给视频组件
-    this.source.src = URL.createObjectURL(res)
-
-    // 重新加载视频
-    this.player.load()
-
-    // 视频加载完毕后触发事件
-    this.props.onLoad()
-
-    this.player.play()
-  }
-
-  // 用于获取网络请求数据
-  onprogress = e => {
-    if (e.lengthComputable) {
-      // 已经传输的字节数 / 总字节数
-      const percent = this.convert(e.loaded / e.total)
-      this.setState({
-        percent
-      })
-    }
-  }
-
-  // 网络请求错误的回调
-  onerror = (errorMsg) => {
-    console.log(errorMsg);
-    this.setState({
-      errorMsg
-    })
+    loadFlag: true, // 标记视频是否为第一次加载
+    endFlag: true // 标记视频是否为第一次结束
   }
 
   componentDidMount() {
+
+    const that = this
+    const { video: { video: videoElm } } = this.player
+
+    videoElm.addEventListener('playing', function () {
+      if (that.state.loadFlag) that.props.onLoad()
+      that.setState({
+        flag: false
+      })
+    })
+
+    if (Hls.isSupported()) {
+      const hls = new Hls()
+      this.hls = hls
+      hls.loadSource(this.props.video.url)
+      hls.attachMedia(videoElm)
+
+      hls.on(Hls.Events.MANIFEST_PARSED, function () {
+        that.props.setFlag()
+        this.player.play()
+      })
+    }
     // 禁止右键菜单
     this.item.oncontextmenu = e => e.preventDefault()
     // Subscribe to the player state changes.
@@ -71,23 +50,39 @@ export default class AdsVideo extends Component {
 
   // 观察视频的状态
   setChange() {
-    const { blobUrl } = this.state
+    const { player: prePlayer, endFlag } = this.state
     const { player } = this.player.getState()
-
+    const { currentSrc } = player
     // 当视频资源存在时，blobUrl不为空
-    if (blobUrl !== '') {
+    if (currentSrc !== '') {
 
       // 根据视频时长进入不同分支
       if (player.duration < 30) {
-        if (player.ended !== this.state.player.ended && player.ended === true) {
-          // 视频首次结束触发
-          console.log("视频小于30s且视频结束");
-          this.props.onEnded()
+
+        // 当前视频状态结束
+        if (prePlayer.ended === true) {
+          if (endFlag) {
+            // 视频首次结束触发
+            console.log("视频小于30s且视频结束");
+            this.props.onEnded()
+          }
+          // 设置 endFlag 为true,
+          this.setState({
+            endFlag: false
+          })
+
         }
       } else if (player.duration > 30) {
-        if (player.currentTime > 30 && this.state.player.currentTime < 30) {
-          console.log("视频大于30s且视频播放超过30s");
-          this.props.onEnded()
+        // 视频时长大于 30s 时，当视频播放超过 30s，触发 onEnded
+        if (prePlayer.currentTime > 30) {
+          if (endFlag) {
+            console.log("视频大于30s且视频播放超过30s");
+            this.props.onEnded()
+          }
+
+          this.setState({
+            endFlag: false
+          })
         }
       }
     }
@@ -98,7 +93,6 @@ export default class AdsVideo extends Component {
       videoElm.disablePictureInPicture = true
     }
 
-    // 获取视频结束使得进度
     if (player.ended !== true) {
       this.props.setProgress(this.toPercent(player.currentTime, player.duration))
     }
@@ -113,31 +107,10 @@ export default class AdsVideo extends Component {
     })
   }
 
-  // 开始发送网络请求（缓存视频）
-  sendXHR = () => {
-    let { flag } = this.state
-    if (flag === false) {
-      let xhr = load({
-        url: this.props.video.url,
-        method: 'GET',
-        type: 'blob',
-        time: 10000,
-        success: this.onsuccess,
-        error: this.onerror,
-        progress: this.onprogress
-      })
-      xhr.send()
-    }
-    else {
-      this.setState({
-        errorMsg: 'xhr must be opend!'
-      })
-    }
-  }
 
   // 切换视频暂停
   togglePaused = () => {
-    if (this.source.src) {
+    if (this.props.flag) {
       const { player: { paused } } = this.player.getState()
       paused ? this.player.play() : this.player.pause()
     } else {
@@ -148,7 +121,7 @@ export default class AdsVideo extends Component {
 
   // 切换视频静音
   setMuted = () => {
-    if (this.source.src) {
+    if (this.props.flag) {
       this.player.muted = !this.player.muted
     } else {
       console.log('视频尚未加载');
@@ -191,7 +164,7 @@ export default class AdsVideo extends Component {
 
   render() {
     const { video } = this.props
-    const { player: { muted: s_muted, duration, currentTime }, blobUrl } = this.state
+    const { player: { muted: s_muted, duration, currentTime } } = this.state
     return (
       <Fragment>
         <div
@@ -199,12 +172,11 @@ export default class AdsVideo extends Component {
           onFocus={this.blurFn}
           style={video.fluid ? { width: '100%' } : { width: `${video.width}px`, height: `${video.height}px` }}>
           <div className='timeline'>{duration ? `${Math.floor(duration - currentTime)}s` : `00:00`}</div>
-          {blobUrl ? <div className='sound' onClick={this.setMuted}>
+          {video.url ? <div className='sound' onClick={this.setMuted}>
             <span className="iconfont" dangerouslySetInnerHTML={{ __html: s_muted ? '&#xe619;' : '&#xe61a;' }}></span>
           </div> : ''}
           <div className='video' ref={item => this.item = item} onClick={this.handleClick}>
             <Player ref={(player) => this.player = player} {...video}>
-              <source ref={a => this.source = a}></source>
               <ControlBar disabled />
               <BigPlayButton disabled />
             </Player>

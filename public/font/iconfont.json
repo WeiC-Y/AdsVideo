@@ -1,0 +1,30 @@
+{
+  "id": "3129413",
+  "name": "测试",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "23036399",
+      "name": "静音",
+      "font_class": "jingyin",
+      "unicode": "e619",
+      "unicode_decimal": 58905
+    },
+    {
+      "icon_id": "23036401",
+      "name": "声音",
+      "font_class": "shengyin",
+      "unicode": "e61a",
+      "unicode_decimal": 58906
+    },
+    {
+      "icon_id": "14835597",
+      "name": "左箭头",
+      "font_class": "arrowLeft-fill",
+      "unicode": "e65d",
+      "unicode_decimal": 58973
+    }
+  ]
+}
