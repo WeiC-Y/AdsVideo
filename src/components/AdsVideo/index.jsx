@@ -7,7 +7,7 @@ import {
 } from 'video-react';
 import { formatSeconds } from '../../utils/dateFormat'
 import { load, toPercent } from '../../utils/xhr'
-import './AdsVideo.css'
+import './index.css'
 import "../../../node_modules/video-react/dist/video-react.css"; // import css
 
 
@@ -154,7 +154,7 @@ export default class AdsVideo extends Component {
     const { to, onAdClick } = this.props
     onAdClick()
     if (to) {
-      return window.location.href = to
+      window.location.href = to
     }
     return false
   }
@@ -164,11 +164,6 @@ export default class AdsVideo extends Component {
     const { duration, currentTime } = this.state.player
     const num = Number(((currentTime / duration) * 100).toFixed(2))
     return duration && currentTime ? num + '%' : '0%'
-  }
-
-  // 阻止冒泡
-  static stopPop = e => {
-    e.stopPropagation()
   }
 
   // 阻止获得焦点
