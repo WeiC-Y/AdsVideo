@@ -137,7 +137,10 @@ export default class AdsVideo extends Component {
   }
 
   // 跳转链接地址
-  handleClick = () => {
+  handleClick = e => {
+    if(e.target.className === 'video-react-video') {
+      e.target.blur()
+    }
     const { to, onAdClick } = this.props
     onAdClick()
     if (to) {
@@ -170,7 +173,6 @@ export default class AdsVideo extends Component {
       <Fragment>
         <div
           className='container'
-          onFocus={this.blurFn}
           style={video.fluid ? { width: '100%' } : { width: `${video.width}px`, height: `${video.height}px` }}>
           <div className='timeline'>{duration ? `${Math.floor(duration - currentTime)}s` : `00:00`}</div>
           {video.url ? <div className='sound' onClick={this.setMuted}>
