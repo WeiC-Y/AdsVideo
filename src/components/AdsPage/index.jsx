@@ -55,6 +55,7 @@ export default function AdsPage() {
 
   const videoProps = {
     video: {
+      // url: 'https://d2zihajmogu5jn.cloudfront.net/tears-of-steel/2040k/file-2040k.m3u8',
       url: videoUrl, // 这是一分钟的视频
       // url: 'http://localhost:1000/15s/temp.m3u8', // 这是15秒的视频
       autoPlay: true,
@@ -71,8 +72,8 @@ export default function AdsPage() {
   }
 
   return (
-    <div className='adsPage'>
-      <div className="top">
+    <div className='videoPage'>
+      <span className="top">
         <div className='back' onClick={() => { navigate(-1); console.log("点击了返回") }}>
           <span className='iconfont'>&#xe65d;</span>
         </div>
@@ -89,7 +90,7 @@ export default function AdsPage() {
             <button>Download</button>
           </div>
         </div>
-      </div>
+      </span>
       {flag ? <AdsVideo ref={video} {...videoProps} /> : <AdsVideo ref={video} {...videoProps} style={{ display: 'none' }} />}
       <Progress bgColor='#ccc' color="#234ddc" progress={progress} />
     </div>
