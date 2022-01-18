@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import AdsVideo from '../AdsVideo';
 import Progress from '../Progress';
 
+import { videoUrl } from '../../constant'
 import './index.css'
 
 export default function AdsPage() {
@@ -54,8 +55,8 @@ export default function AdsPage() {
 
   const videoProps = {
     video: {
-      // url: 'http://localhost:1000/1m/temp.m3u8', // 这是一分钟的视频
-      url: 'http://localhost:1000/15s/temp.m3u8', // 这是15秒的视频
+      url: videoUrl, // 这是一分钟的视频
+      // url: 'http://localhost:1000/15s/temp.m3u8', // 这是15秒的视频
       autoPlay: true,
       fluid: true,
       muted: true
