@@ -36,7 +36,7 @@ const VideoJs = forwardRef((props, ref) => {
   }
 
   useEffect(() => {
-    const { videoLoad, videoEnded, setProgress, maxDuration, videoUrl } = props
+    const { videoLoad, videoEnded, setProgress, maxDuration, url } = props
     let player = null
 
     // 初始化视频
@@ -47,12 +47,12 @@ const VideoJs = forwardRef((props, ref) => {
         controls: false,  // 控制栏
         preload: 'auto',
         fluid: false,
-        disablePictureInPicture: true,  // 画中画
         loadingSpinner: false,  // 加载中图标
         autoplay: 'muted',
-        bigPlayButton: false,  // 大的播放按钮
+        bigPlayButton: false,  // 大的播放按钮,
+        disabledPictureInPicture: true,
         controlBar: {
-          pictureInPictureToggle: false
+          PictureInPictureToggle: false
         }
       }
 
@@ -115,9 +115,8 @@ const VideoJs = forwardRef((props, ref) => {
     }
 
     try {
-      initVideo(videoUrl)
+      initVideo(url)
       setVideo(player)
-      console.log(player);
     } catch (err) {
       console.log(err);
     }
@@ -134,7 +133,7 @@ const VideoJs = forwardRef((props, ref) => {
 
   return (
     <div className='container' ref={container} onContextMenu={e => e.preventDefault()}>
-      <video id='AdsVideo' className='video-js' playsInline disablePictureInPicture={true}></video>
+      <video id='AdsVideo' className='video-js' x5-video-player-type='h5-page' disablePictureInPicture controls='true'></video>
     </div>
   )
 }
