@@ -1,7 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
-import AdsPage from './components/AdsPage';
 import VideoPage from './components/VideoPage';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import 'core-js/es'
@@ -12,7 +11,6 @@ ReactDOM.render(
   <Router>
     <Routes>
       <Route path='/' element={<App />}/>
-      <Route path='/ads' element={<AdsPage />}/>
       <Route path='/video' element={<VideoPage />}/>
     </Routes>
   </Router>

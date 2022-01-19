@@ -61,19 +61,19 @@ const VideoJs = forwardRef((props, ref) => {
       player.on(['loadstart', 'loadeddata', 'play', 'pause', 'playing', 'timeupdate', 'volumechange', 'firstplay', 'ended'], e => {
         switch (e.type) {
           case 'loadstart':
-            return console.log('开始加载数据');
+            return;
 
           case 'loadeddata':
             setDuration(player.duration())
-            return console.log('加载数据成功');
+            return;
 
           case 'firstplay':
             // 第一次播放时发起网络请求
             videoLoad()
-            return console.log('第一次播放');
+            return;
 
           case 'playing':
-            return console.log('播放中...');
+            return;
 
           case 'timeupdate':
             // 当播放时长发生改变时才会触发，所以 currentTime 不会为空
@@ -86,17 +86,17 @@ const VideoJs = forwardRef((props, ref) => {
 
             setCurrentTime(player.currentTime())
             setProgress(numberFormat(player.currentTime() / player.duration()))
-            return console.log('播放时间改变...');
+            return;
 
 
           case 'volumechange':
             setMuted(player.muted())
-            return console.log('音量变化');
+            return;
           case 'play':
-            return console.log('视频播放');
+            return;
 
           case 'pause':
-            return console.log('视频暂停');
+            return;
 
           case 'ended':
             if (!maxDuration || maxDuration > player.duration()) {
@@ -105,7 +105,7 @@ const VideoJs = forwardRef((props, ref) => {
               // 当视频时长小于30s时，需要播放结束才发送请求
               videoEnded()
             }
-            return console.log('视频结束');
+            return;
 
           default:
             return false;
@@ -133,7 +133,7 @@ const VideoJs = forwardRef((props, ref) => {
 
   return (
     <div className='container' ref={container} onContextMenu={e => e.preventDefault()}>
-      <video id='AdsVideo' className='video-js' x5-video-player-type='h5-page' disablePictureInPicture controls='true'></video>
+      <video id='AdsVideo' className='video-js'></video>
     </div>
   )
 }

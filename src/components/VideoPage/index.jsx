@@ -1,17 +1,17 @@
 import React, { useRef, useState } from 'react'
-import { useNavigate } from 'react-router-dom';
 import Progress from '../Progress';
 import VideoJs from '../VideoJs'
 import { formatSeconds } from '../../utils/dateFormat'
 
-import { videoUrl } from '../../constant'
+import './index.css'
+
+import { videoJsUrl } from '../../constant'
 
 export default function VideoPage() {
 
   const [progress, setProgress] = useState('')
 
   const videoRef = useRef()
-  const navigate = useNavigate()
 
   // 获取子组件暴露出来的方法 切换暂停与开始
   const changePaused = () => {
@@ -34,7 +34,7 @@ export default function VideoPage() {
 
   // 传递的参数
   const videoProps = {
-    url: videoUrl,
+    url: videoJsUrl,
     videoLoad: () => { console.log('视频开始播放时,发起网络请求') },
     videoEnded: () => { console.log('视频结束时(或播放时长达到条件时),发起网络请求') },
     setProgress: setPercent,
@@ -43,24 +43,6 @@ export default function VideoPage() {
 
   return (
     <div className='videoPage'>
-      <div className="top">
-        <div className='back' onClick={() => { navigate(-1); console.log("点击了返回") }}>
-          <span className='iconfont'>&#xe65d;</span>
-        </div>
-
-        <div className="downloadApp">
-          <div className="left">
-            <img src={require('../../assets/R.jpg')} alt="" />
-            <div className="txt">
-              <h4 className="title">City Mall Online</h4>
-              <span className="author">by citymall. org</span>
-            </div>
-          </div>
-          <div className="right">
-            <button>Download</button>
-          </div>
-        </div>
-      </div>
       <a href='https://www.baidu.com' onClick={videoClick}><VideoJs {...videoProps} ref={videoRef} /></a>
       <Progress bgColor='#ccc' color="#234ddc" progress={`${progress}%`} />
       <button onClick={changePaused}>切换播放/暂停</button>
