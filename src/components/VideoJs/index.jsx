@@ -117,6 +117,7 @@ const VideoJs = forwardRef((props, ref) => {
     try {
       initVideo(url)
       setVideo(player)
+      console.log(player.playsinline());
     } catch (err) {
       console.log(err);
     }
@@ -133,7 +134,7 @@ const VideoJs = forwardRef((props, ref) => {
 
   return (
     <div className='container' ref={container} onContextMenu={e => e.preventDefault()}>
-      <video id='AdsVideo' className='video-js'></video>
+      <video id='AdsVideo' className='video-js' playsInline></video>
     </div>
   )
 }

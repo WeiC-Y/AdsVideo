@@ -5,7 +5,7 @@ import { formatSeconds } from '../../utils/dateFormat'
 
 import './index.css'
 
-import { videoJsUrl } from '../../constant'
+import { shortUrl } from '../../constant'
 
 export default function VideoPage() {
 
@@ -34,7 +34,7 @@ export default function VideoPage() {
 
   // 传递的参数
   const videoProps = {
-    url: videoJsUrl,
+    url: shortUrl,
     videoLoad: () => { console.log('视频开始播放时,发起网络请求') },
     videoEnded: () => { console.log('视频结束时(或播放时长达到条件时),发起网络请求') },
     setProgress: setPercent,
