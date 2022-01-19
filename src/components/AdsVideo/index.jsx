@@ -94,6 +94,8 @@ export default class AdsVideo extends Component {
       videoElm.disablePictureInPicture = true
     }
 
+    videoElm.playsInline = true
+
 
     this.setState({
       player,
