@@ -3,3 +3,8 @@
   height: 300px;
   margin: 0 auto;
 }
+
+.btn {
+  color: white;
+  background-color: #000;
+}
