@@ -5,7 +5,7 @@ import { formatSeconds } from '../../utils/dateFormat'
 
 import './index.css'
 
-import { shortUrl } from '../../constant'
+import { urlList } from '../../constant'
 
 export default function VideoPage() {
 
@@ -29,12 +29,15 @@ export default function VideoPage() {
     }
   }
 
-  const videoClick = () => { console.log('视频广告被点击时,发起网络请求'); }
+  const videoClick = () => {
+    console.log('视频广告被点击时,发起网络请求');
+  }
+
   const setPercent = value => setProgress(value)
 
   // 传递的参数
   const videoProps = {
-    url: shortUrl,
+    url: urlList,
     videoLoad: () => { console.log('视频开始播放时,发起网络请求') },
     videoEnded: () => { console.log('视频结束时(或播放时长达到条件时),发起网络请求') },
     setProgress: setPercent,
@@ -43,7 +46,7 @@ export default function VideoPage() {
 
   return (
     <div className='videoPage'>
-      <a href='https://www.baidu.com' onClick={videoClick}><VideoJs {...videoProps} ref={videoRef} /></a>
+      <a href="https://www.baidu.com" onClick={videoClick}><VideoJs {...videoProps} ref={videoRef} /></a>
       <Progress bgColor='#ccc' color="#234ddc" progress={`${progress}%`} />
       <button onClick={changePaused} className='btn'>切换播放/暂停</button>
       {videoRef.current ? <div>

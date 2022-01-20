@@ -9,7 +9,11 @@ import('video.js/dist/lang/zh-CN')
 
 // window.flag = false
 let flag = false
+let i = 0 //设置 视频源列表 索引值
+
 const VideoJs = forwardRef((props, ref) => {
+
+  const { videoLoad, videoEnded, setProgress, maxDuration, url } = props
 
   const container = useRef()
   const [video, setVideo] = useState('')
@@ -17,28 +21,38 @@ const VideoJs = forwardRef((props, ref) => {
   const [duration, setDuration] = useState(0) // 视频总时长
   const [muted, setMuted] = useState(true)
 
-  const numberFormat = (num) => {
+  const numberFormat = (num) => { // 将小数变为 精确到小数点后两位的百分数
     if (typeof num === 'number') {
       return (num.toFixed(4) * 100).toFixed(2)
     }
   }
 
-  const togglePaused = () => {
+  const togglePaused = () => { // 切换播放
     if (video) {
       video.paused() ? video.play() : video.pause()
     }
   }
 
-  const toggleMuted = () => {
+  const toggleMuted = () => { // 切换静音
     if (video) {
       video.muted() ? video.muted(false) : video.muted(true)
     }
   }
 
   useEffect(() => {
-    const { videoLoad, videoEnded, setProgress, maxDuration, url } = props
     let player = null
 
+    // 发生错误前触发的钩子函数
+    Videojs.hook('beforeerror', (player, err) => {
+      console.log('hook - beforeerror', i, player.src(), err)
+      // Video.js 在切换/指定 source 后立即会触发一个 err=null 的错误，这里过滤一下
+      if (player.src() !== null) {
+        url[i + 1] ? player.src(url[++i]) : console.log('视频资源为空');
+      }
+
+      // 清除错误，避免 error 事件在控制台抛出错误
+      return err
+    })
     // 初始化视频
     async function initVideo(src) {
 
@@ -51,14 +65,15 @@ const VideoJs = forwardRef((props, ref) => {
         autoplay: 'muted',
         bigPlayButton: false,  // 大的播放按钮,
         disabledPictureInPicture: true,
+        LoadProgressBar: true,
         controlBar: {
-          PictureInPictureToggle: false
+          PictureInPictureToggle: false,
         }
       }
 
       player = Videojs('AdsVideo', options)
-
-      player.on(['loadstart', 'loadeddata', 'play', 'pause', 'playing', 'timeupdate', 'volumechange', 'firstplay', 'ended'], e => {
+      player.disablePictureInPicture(true)
+      player.on(['loadstart', 'loadedalldata', 'loadeddata', 'play', 'pause', 'playing', 'timeupdate', 'volumechange', 'firstplay', 'ended'], e => {
         switch (e.type) {
           case 'loadstart':
             return;
@@ -66,6 +81,9 @@ const VideoJs = forwardRef((props, ref) => {
           case 'loadeddata':
             setDuration(player.duration())
             return;
+
+          case 'loadedalldata':
+            return console.log('加载全部数据');
 
           case 'firstplay':
             // 第一次播放时发起网络请求
@@ -88,7 +106,6 @@ const VideoJs = forwardRef((props, ref) => {
             setProgress(numberFormat(player.currentTime() / player.duration()))
             return;
 
-
           case 'volumechange':
             setMuted(player.muted())
             return;
@@ -110,14 +127,14 @@ const VideoJs = forwardRef((props, ref) => {
           default:
             return false;
         }
+
       })
-      player.src({ src })
+      player.src(src)
     }
 
     try {
-      initVideo(url)
+      initVideo(url[i])
       setVideo(player)
-      console.log(player.playsinline());
     } catch (err) {
       console.log(err);
     }
@@ -134,7 +151,7 @@ const VideoJs = forwardRef((props, ref) => {
 
   return (
     <div className='container' ref={container} onContextMenu={e => e.preventDefault()}>
-      <video id='AdsVideo' className='video-js' playsInline></video>
+      <video id='AdsVideo' className='video-js' playsInline x5-video-player-type="h5"></video>
     </div>
   )
 }
