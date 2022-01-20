@@ -54,7 +54,7 @@ export default function VideoPage() {
 
   return (
     <div className='videoPage'>
-      <a href="https://www.baidu.com" onClick={videoClick}><VideoJs {...videoProps} ref={videoRef} /></a>
+      <a href="https://www.baidu.com" onClick={videoClick} className='link'><VideoJs {...videoProps} ref={videoRef} /></a>
       <Progress bgColor='#ccc' color="#234ddc" progress={`${progress}%`} />
       <button onClick={changePaused} className='btn'>切换播放/暂停</button>
       {videoRef.current ? <div className='cover'>
