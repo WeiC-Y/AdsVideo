@@ -49,11 +49,11 @@ export default function VideoPage() {
       <a href="https://www.baidu.com" onClick={videoClick}><VideoJs {...videoProps} ref={videoRef} /></a>
       <Progress bgColor='#ccc' color="#234ddc" progress={`${progress}%`} />
       <button onClick={changePaused} className='btn'>切换播放/暂停</button>
-      {videoRef.current ? <div>
-        <span>{formatSeconds(videoRef.current.duration - videoRef.current.currentTime)}</span>
+      {videoRef.current ? <div className='cover'>
+        <span className='time'>{formatSeconds(videoRef.current.duration - videoRef.current.currentTime)}</span>
         <span className='iconfont' onClick={changeMuted} dangerouslySetInnerHTML={{ __html: videoRef.current.muted ? '&#xe619;' : '&#xe61a;' }}></span>
-      </div> : <div>
-        <span>0:00</span>
+      </div> : <div className='cover'>
+        <span className='time'>0:00</span>
         <span className='iconfont'>&#xe619;</span>
       </div>
       }

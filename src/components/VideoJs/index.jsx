@@ -44,14 +44,16 @@ const VideoJs = forwardRef((props, ref) => {
 
     // 发生错误前触发的钩子函数
     Videojs.hook('beforeerror', (player, err) => {
-      // Video.js 在切换/指定 source 后立即会触发一个 err=null 的错误，这里过滤一下
-      if (player.src() !== null) {
-        player.src(url[++i])
+      if (err !== null) {
+        if (Array.isArray(url)) {
+          player.src(url[++i])
+        }
       }
 
       // 清除错误，避免 error 事件在控制台抛出错误
       return err
     })
+
     // 初始化视频
     async function initVideo(src) {
 
@@ -132,7 +134,8 @@ const VideoJs = forwardRef((props, ref) => {
     }
 
     try {
-      initVideo(url[i])
+      const src = Array.isArray(url) ? url[i] : url
+      initVideo(src)
       setVideo(player)
     } catch (err) {
       console.log(err);
@@ -151,7 +154,7 @@ const VideoJs = forwardRef((props, ref) => {
   return (
     <div className='container' ref={container} onContextMenu={e => e.preventDefault()}>
       <video id='AdsVideo' className='video-js' playsInline x5-video-player-type="h5"></video>
-    </div>
+    </div >
   )
 }
 )
