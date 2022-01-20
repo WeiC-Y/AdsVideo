@@ -13,7 +13,8 @@ let i = 0 //设置 视频源列表 索引值
 
 const VideoJs = forwardRef((props, ref) => {
 
-  const { videoLoad, videoEnded, setProgress, maxDuration, url } = props
+  const { videoLoad, videoEnded, setProgress, maxDuration, videoProps } = props
+  const { url, width, height, autoplay, p_muted } = videoProps
 
   const container = useRef()
   const [video, setVideo] = useState('')
@@ -41,7 +42,6 @@ const VideoJs = forwardRef((props, ref) => {
 
   useEffect(() => {
     let player = null
-
     // 发生错误前触发的钩子函数
     Videojs.hook('beforeerror', (player, err) => {
       if (err !== null) {
@@ -63,7 +63,8 @@ const VideoJs = forwardRef((props, ref) => {
         preload: 'auto',
         fluid: false,
         loadingSpinner: false,  // 加载中图标
-        autoplay: 'muted',
+        autoplay: p_muted && autoplay ? 'muted' : false,
+        muted: p_muted,
         bigPlayButton: false,  // 大的播放按钮,
         disabledPictureInPicture: true,
         LoadProgressBar: true,
@@ -152,7 +153,7 @@ const VideoJs = forwardRef((props, ref) => {
   useImperativeHandle(ref, () => ({ toggleMuted, togglePaused, currentTime, duration, muted }));
 
   return (
-    <div className='container' ref={container} onContextMenu={e => e.preventDefault()}>
+    <div className='container' style={{ width: `${width}`, height: `${height}` }} ref={container} onContextMenu={e => e.preventDefault()}>
       <video id='AdsVideo' className='video-js' playsInline x5-video-player-type="h5"></video>
     </div >
   )

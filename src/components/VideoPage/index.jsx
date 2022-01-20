@@ -10,6 +10,7 @@ import { urlList } from '../../constant'
 export default function VideoPage() {
 
   const [progress, setProgress] = useState('')
+  const [muted, setMuted] = useState(false)
 
   const videoRef = useRef()
 
@@ -26,6 +27,7 @@ export default function VideoPage() {
     const { current } = videoRef
     if (current) {
       current.toggleMuted()
+      setMuted(current.muted)
     }
   }
 
@@ -37,7 +39,13 @@ export default function VideoPage() {
 
   // 传递的参数
   const videoProps = {
-    url: urlList,
+    videoProps: {
+      url: urlList,
+      width: '100%', // string 类型，'100px' 或 '100%'
+      height: '100%',
+      autoplay: true, // 自动播放需要设置静音才能生效
+      p_muted: true,
+    },
     videoLoad: () => { console.log('视频开始播放时,发起网络请求') },
     videoEnded: () => { console.log('视频结束时(或播放时长达到条件时),发起网络请求') },
     setProgress: setPercent,
@@ -51,7 +59,7 @@ export default function VideoPage() {
       <button onClick={changePaused} className='btn'>切换播放/暂停</button>
       {videoRef.current ? <div className='cover'>
         <span className='time'>{formatSeconds(videoRef.current.duration - videoRef.current.currentTime)}</span>
-        <span className='iconfont' onClick={changeMuted} dangerouslySetInnerHTML={{ __html: videoRef.current.muted ? '&#xe619;' : '&#xe61a;' }}></span>
+        <span className='iconfont' onClick={changeMuted} dangerouslySetInnerHTML={{ __html: muted ? '&#xe619;' : '&#xe61a;' }}></span>
       </div> : <div className='cover'>
         <span className='time'>0:00</span>
         <span className='iconfont'>&#xe619;</span>
