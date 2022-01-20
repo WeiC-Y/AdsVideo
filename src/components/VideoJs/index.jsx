@@ -44,10 +44,9 @@ const VideoJs = forwardRef((props, ref) => {
 
     // 发生错误前触发的钩子函数
     Videojs.hook('beforeerror', (player, err) => {
-      console.log('hook - beforeerror', i, player.src(), err)
       // Video.js 在切换/指定 source 后立即会触发一个 err=null 的错误，这里过滤一下
       if (player.src() !== null) {
-        url[i + 1] ? player.src(url[++i]) : console.log('视频资源为空');
+        player.src(url[++i])
       }
 
       // 清除错误，避免 error 事件在控制台抛出错误
