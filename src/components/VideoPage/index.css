@@ -35,3 +35,9 @@
   color: white;
   background-color: #000;
 }
+
+/* 覆盖组件样式 */
+.AdsVideo-dimensions {
+  width: 100% !important;
+  height: 100% !important;
+}
