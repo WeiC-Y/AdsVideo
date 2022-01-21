@@ -59,11 +59,8 @@ export default function VideoPage() {
       <button onClick={changePaused} className='btn'>切换播放/暂停</button>
       {videoRef.current ? <div className='cover'>
         <span className='time'>{formatSeconds(videoRef.current.duration - videoRef.current.currentTime)}</span>
-        <span className='iconfont' onClick={changeMuted} dangerouslySetInnerHTML={{ __html: muted ? '&#xe619;' : '&#xe61a;' }}></span>
-      </div> : <div className='cover'>
-        <span className='time'>0:00</span>
-        <span className='iconfont'>&#xe619;</span>
-      </div>
+        <span className='iconfont' onClick={changeMuted} dangerouslySetInnerHTML={{ __html: !muted ? '&#xe619;' : '&#xe61a;' }}></span>
+      </div> : ''
       }
     </div >
   )

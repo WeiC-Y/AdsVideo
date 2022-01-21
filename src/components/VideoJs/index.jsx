@@ -51,7 +51,7 @@ const VideoJs = forwardRef((props, ref) => {
       }
 
       // 清除错误，避免 error 事件在控制台抛出错误
-      return err
+      return null
     })
 
     // 初始化视频
