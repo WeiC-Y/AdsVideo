@@ -41,8 +41,8 @@ export default function VideoPage() {
   const videoProps = {
     videoProps: {
       url: urlList,
-      width: '100%', // string 类型，'100px' 或 '100%'
-      height: '100%',
+      width: 700, // number类型
+      height: 400,
       autoplay: true, // 自动播放需要设置静音才能生效
       p_muted: true,
     },

@@ -10,6 +10,7 @@ import('video.js/dist/lang/zh-CN')
 // window.flag = false
 let flag = false
 let i = 0 //设置 视频源列表 索引值
+let timer = null
 
 const VideoJs = forwardRef((props, ref) => {
 
@@ -17,10 +18,13 @@ const VideoJs = forwardRef((props, ref) => {
   const { url, width, height, autoplay, p_muted } = videoProps
 
   const container = useRef()
+  const canvas = useRef()
+  const vc = useRef()
   const [video, setVideo] = useState('')
   const [currentTime, setCurrentTime] = useState(0) // 当前播放时间
   const [duration, setDuration] = useState(0) // 视频总时长
   const [muted, setMuted] = useState(true)
+  const [isFirefox, setFirefox] = useState(false) // 判断是否为火狐浏览器
 
   const numberFormat = (num) => { // 将小数变为 精确到小数点后两位的百分数
     if (typeof num === 'number') {
@@ -41,6 +45,10 @@ const VideoJs = forwardRef((props, ref) => {
   }
 
   useEffect(() => {
+    if (navigator.userAgent.indexOf('Firefox') >= 0) {
+      setFirefox(true)
+    }
+
     let player = null
     // 发生错误前触发的钩子函数
     Videojs.hook('beforeerror', (player, err) => {
@@ -137,12 +145,23 @@ const VideoJs = forwardRef((props, ref) => {
     try {
       const src = Array.isArray(url) ? url[i] : url
       initVideo(src)
+
+      const { current: cs } = canvas
+      const ctx = cs.getContext('2d')
+      console.log(cs.style);
+      timer = setInterval(() => {
+        ctx.drawImage(player.children_[0], 0, 0, width, height)
+      }, 40)
+
       setVideo(player)
     } catch (err) {
       console.log(err);
     }
 
     return () => {
+      if (timer) {
+        clearInterval(timer)
+      }
       if (player) {
         player.dispose()
       }
@@ -153,9 +172,13 @@ const VideoJs = forwardRef((props, ref) => {
   useImperativeHandle(ref, () => ({ toggleMuted, togglePaused, currentTime, duration, muted }));
 
   return (
-    <div className='container' style={{ width: `${width}`, height: `${height}` }} ref={container} onContextMenu={e => e.preventDefault()}>
-      <video id='AdsVideo' className='video-js' playsInline x5-video-player-type="h5"></video>
-    </div >
+    <div className="container" style={{ width: `${width}px`, height: `${height}px` }}>
+      <div className='video' style={{ display: isFirefox ? 'none' : 'block' }} ref={container} onContextMenu={e => e.preventDefault()}>
+        <video ref={vc} id='AdsVideo' className='video-js' playsInline x5-video-player-type="h5"></video>
+      </div>
+      <canvas className='canvas' style={{ display: isFirefox ? 'block' : 'none' }} ref={canvas} width={width} height={height}></canvas>
+    </div>
+
   )
 }
 )
