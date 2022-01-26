@@ -11,6 +11,7 @@ import('video.js/dist/lang/zh-CN')
 let flag = false
 let i = 0 //设置 视频源列表 索引值
 let timer = null
+let firstPlay = true
 
 const VideoJs = forwardRef((props, ref) => {
 
@@ -83,9 +84,18 @@ const VideoJs = forwardRef((props, ref) => {
 
       player = Videojs('AdsVideo', options)
       player.disablePictureInPicture(true)
-      player.on(['loadstart', 'loadedalldata', 'loadeddata', 'play', 'pause', 'playing', 'timeupdate', 'volumechange', 'firstplay', 'ended'], e => {
+      player.on(['loadstart', 'loadedmetadata', 'loadedalldata', 'loadeddata', 'play', 'pause', 'playing', 'timeupdate', 'volumechange', 'firstplay', 'ended'], e => {
         switch (e.type) {
           case 'loadstart':
+            return;
+
+          case 'loadedmetadata':
+            console.log('加载元数据');
+            // 设置 hls 插件发起网络请求的超时时间为 1s
+            Videojs.Vhs.xhr.beforeRequest = function (options) {
+              options.timeout = 5500
+              return options
+            }
             return;
 
           case 'loadeddata':
@@ -96,11 +106,16 @@ const VideoJs = forwardRef((props, ref) => {
             return console.log('加载全部数据');
 
           case 'firstplay':
-            // 第一次播放时发起网络请求
-            videoLoad()
             return;
 
           case 'playing':
+            console.log('视频播放中');
+
+            if (firstPlay) {
+              // 第一次播放时发起网络请求
+              videoLoad()
+              firstPlay = false
+            }
             return;
 
           case 'timeupdate':
@@ -146,9 +161,14 @@ const VideoJs = forwardRef((props, ref) => {
       const src = Array.isArray(url) ? url[i] : url
       initVideo(src)
 
+      // 设置 hls 插件发起网络请求的超时时间为 1s
+      Videojs.Vhs.xhr.beforeRequest = function (options) {
+        options.timeout = 1500
+        return options
+      }
+
       const { current: cs } = canvas
       const ctx = cs.getContext('2d')
-      console.log(cs.style);
       timer = setInterval(() => {
         ctx.drawImage(player.children_[0], 0, 0, width, height)
       }, 40)
