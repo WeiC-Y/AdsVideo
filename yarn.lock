@@ -8198,10 +8198,10 @@ vary@~1.1.2:
   resolved "https://registry.nlark.com/vary/download/vary-1.1.2.tgz"
   integrity sha1-IpnwLG3tMNSllhsLn3RSShj2NPw=
 
-video-react@^0.14.1:
+video-react@0.14.1:
   version "0.14.1"
-  resolved "https://registry.npmmirror.com/video-react/download/video-react-0.14.1.tgz"
-  integrity sha1-Sax7GfHQOcCz6+yC+BIkvC+ovfE=
+  resolved "https://registry.npmmirror.com/video-react/-/video-react-0.14.1.tgz#49ac7b19f1d039c0b3ebec82f81224bc2fa8bdf1"
+  integrity sha512-R5ClJo58iJcQLS+bGNmuAMc/fx9/xcJ6oLrAlbuu7MGI49Jh7b7o79aUdQMZvzuynT1NvhVmD4N/fTOEmWNDlg==
   dependencies:
     "@babel/runtime" "^7.4.5"
     classnames "^2.2.6"

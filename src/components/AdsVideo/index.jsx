@@ -1,5 +1,4 @@
 import React, { Component, Fragment } from 'react';
-import { number, string, bool, oneOf, func, shape } from 'prop-types'
 import {
   Player,
   ControlBar,
@@ -37,6 +36,12 @@ export default class AdsVideo extends Component {
 
     // 视频加载完毕后触发事件
     this.props.onLoad()
+
+    // 视频资源静音
+    this.player.muted = true;
+
+    // 加载成功后自动播放
+    this.player.play();
   }
 
   // 用于获取网络请求数据
@@ -95,7 +100,6 @@ export default class AdsVideo extends Component {
     }
 
     videoElm.playsInline = true
-
 
     this.setState({
       player,
@@ -200,41 +204,6 @@ export default class AdsVideo extends Component {
           </div>
         </div>
       </Fragment>
-
     )
   }
-}
-
-
-AdsVideo.propTypes = {
-  video: shape({
-    width: number,
-    height: number,
-    fluid: bool,
-    autoplay: bool,
-    muted: bool,
-    url: string,
-    poster: string,
-    preload: oneOf(['none', 'auto', 'metadata']),
-  }),
-  to: string,
-  onEnded: func,
-  onLoad: func,
-  onAdClick: func
-}
-
-AdsVideo.defaultProps = {
-  video: {
-    width: 500,
-    height: 300,
-    fluid: false,
-    autoplay: false,
-    muted: true,
-    url: '',
-    poster: '',
-    preload: 'auto',
-  },
-  onEnded: () => { },
-  onLoad: () => { },
-  onAdClick: () => { }
 }
